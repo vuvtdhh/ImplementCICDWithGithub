@@ -59,7 +59,7 @@ jobs:
       run: |
         $source = "$env:GITHUB_WORKSPACE\out"
         $destination = "C:\Ryan\publish\ImplementCICDWithGithub"
-        robocopy $source $destination /MIR /R:3 /W:5 /XF appsettings.json web.config
+        $result = robocopy $source $destination /MIR /R:3 /W:5 /XF appsettings.json web.config
 
     - name: Check and Create App Pool
       shell: powershell
