@@ -43,7 +43,16 @@ jobs:
       shell: powershell
       run: |
         $websiteName = "ImplementCICDWithGithub"
-        Stop-WebAppPool -Name $websiteName
+        $appPoolName = "ImplementCICDWithGithub"
+
+        # Kiểm tra và dừng Application Pool nếu đang chạy
+        $appPoolState = Get-WebAppPoolState -Name $appPoolName -ErrorAction SilentlyContinue
+        if ($appPoolState -and $appPoolState.Value -eq "Started") {
+          Stop-WebAppPool -Name $appPoolName
+          Write-Host "Stopped Application Pool: $appPoolName"
+        } else {
+          Write-Host "Application Pool is already stopped: $appPoolName"
+        }
 
     - name: Sync files to publish folder
       run: |
