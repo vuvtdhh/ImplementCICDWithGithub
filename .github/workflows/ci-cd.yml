@@ -16,10 +16,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4  # Lấy mã nguồn từ repository
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'  # Thiết lập phiên bản .NET Core
+    # - name: Setup .NET Core
+    #   uses: actions/setup-dotnet@v4
+    #   with:
+    #     dotnet-version: '8.0.x'  # Thiết lập phiên bản .NET Core
 
     - name: Restore dependencies
       run: dotnet restore  # Khôi phục các dependencies
@@ -36,10 +36,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4  # Lấy mã nguồn từ repository
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'  # Thiết lập phiên bản .NET Core
+    # - name: Setup .NET Core
+    #   uses: actions/setup-dotnet@v4
+    #   with:
+    #     dotnet-version: '8.0.x'  # Thiết lập phiên bản .NET Core
 
     - name: Publish
       run: dotnet publish -c Release -o out  # Xuất bản ứng dụng
