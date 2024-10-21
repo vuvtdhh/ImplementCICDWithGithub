@@ -39,25 +39,26 @@ jobs:
     - name: Publish
       run: dotnet publish -c Release -o out
 
-    - name: Set Variables
-      id: vars
-      run: |
-        echo "websiteName=ImplementCICDWithGithub" >> $GITHUB_ENV
-        echo "appPoolName=ImplementCICDWithGithub" >> $GITHUB_ENV
-        echo "appPath=C:\Ryan\publish\ImplementCICDWithGithub" >> $GITHUB_ENV
-
     - name: Stop IIS Application
       shell: pwsh
       run: |
-        $websiteName = "${{ env.websiteName }}"
+        $websiteName = "ImplementCICDWithGithub"
         Stop-WebAppPool -Name $websiteName
+
+    - name: Sync files to publish folder
+      run: |
+        # Sử dụng RoboCopy để đồng bộ từ thư mục out sang thư mục publish
+        $source = "$(System.DefaultWorkingDirectory)\out"
+        $destination = "C:\Ryan\publish\ImplementCICDWithGithub"
+        robocopy $source $destination /MIR /R:3 /W:5 /XF appsettings.json web.config
+      shell: pwsh
 
     - name: Check and Create App Pool
       shell: pwsh
       run: |
-        $appPoolName = "${{ env.appPoolName }}"
-        $websiteName = "${{ env.websiteName }}"
-        $appPath = "${{ env.appPath }}"
+        $appPoolName = "ImplementCICDWithGithub"
+        $websiteName = "ImplementCICDWithGithub"
+        $appPath = "C:\Ryan\publish\ImplementCICDWithGithub"
 
         # Kiểm tra và tạo Application Pool nếu không tồn tại
         if (-Not (Get-WebAppPoolState -Name $appPoolName -ErrorAction SilentlyContinue)) {
@@ -68,4 +69,16 @@ jobs:
         # Kiểm tra website
         if (-Not (Get-Website -Name $websiteName -ErrorAction SilentlyContinue)) {
           New-Website -Name $websiteName -Port 8080 -PhysicalPath $appPath -ApplicationPool $appPoolName
+          Write-Host "Created Website: $websiteName"
         }
+
+    - name: Restart IIS Application
+      shell: pwsh
+      run: |
+        $appPoolName = "ImplementCICDWithGithub"
+        $websiteName = "ImplementCICDWithGithub"
+        
+        # Restart App Pool và Website
+        Restart-WebAppPool -Name $appPoolName
+        Restart-WebItem "IIS:\Sites\$websiteName"
+        Write-Host "Restarted App Pool and Website: $websiteName"
