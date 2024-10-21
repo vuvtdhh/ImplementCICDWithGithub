@@ -14,30 +14,30 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # Lấy mã nguồn từ repository
+      uses: actions/checkout@v4
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'  # Thiết lập phiên bản .NET Core
+        dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore  # Khôi phục các dependencies
+      run: dotnet restore
 
     - name: Build
-      run: dotnet build --configuration Release --no-restore  # Xây dựng ứng dụng
+      run: dotnet build --configuration Release --no-restore
 
     - name: Test
-      run: dotnet test --no-restore --verbosity normal  # Chạy kiểm thử
+      run: dotnet test --no-restore --verbosity normal
 
   deploy:
-    runs-on: self-hosted  # Chạy job deploy trên self-hosted runner
+    runs-on: self-hosted
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # Lấy mã nguồn từ repository
+      uses: actions/checkout@v4
 
     - name: Publish
-      run: dotnet publish -c Release -o out  # Xuất bản ứng dụng
+      run: dotnet publish -c Release -o out
 
     - name: Set Variables
       id: vars
@@ -47,29 +47,25 @@ jobs:
         echo "appPath=C:\Ryan\publish\ImplementCICDWithGithub" >> $GITHUB_ENV
 
     - name: Stop IIS Application
+      shell: pwsh
       run: |
-        Stop-WebAppPool -Name ${{ env.websiteName }}  # Dừng Application Pool tương ứng
+        $websiteName = "${{ env.websiteName }}"
+        Stop-WebAppPool -Name $websiteName
 
     - name: Check and Create App Pool
+      shell: pwsh
       run: |
+        $appPoolName = "${{ env.appPoolName }}"
+        $websiteName = "${{ env.websiteName }}"
+        $appPath = "${{ env.appPath }}"
+
         # Kiểm tra và tạo Application Pool nếu không tồn tại
-        if (-Not (Get-WebAppPoolState -Name ${{ env.appPoolName }} -ErrorAction SilentlyContinue)) {
-          New-WebAppPool -Name ${{ env.appPoolName }}
-          Write-Host "Created App Pool: ${{ env.appPoolName }}"
+        if (-Not (Get-WebAppPoolState -Name $appPoolName -ErrorAction SilentlyContinue)) {
+          New-WebAppPool -Name $appPoolName
+          Write-Host "Created App Pool: $appPoolName"
         }
 
         # Kiểm tra website
-        if (-Not (Get-Website -Name ${{ env.websiteName }} -ErrorAction SilentlyContinue)) {
-          New-Website -Name ${{ env.websiteName }} -Port 8080 -PhysicalPath ${{ env.appPath }} -ApplicationPool ${{ env.appPoolName }}
+        if (-Not (Get-Website -Name $websiteName -ErrorAction SilentlyContinue)) {
+          New-Website -Name $websiteName -Port 8080 -PhysicalPath $appPath -ApplicationPool $appPoolName
         }
-
-    - name: Copy files to publish folder
-      run: |
-        # Sử dụng RoboCopy để đồng bộ từ thư mục out sang thư mục publish
-        $source = "$(System.DefaultWorkingDirectory)\out"
-        $destination = "C:\Ryan\publish\ImplementCICDWithGithub"
-        robocopy $source $destination /MIR /R:3 /W:5 /XF appsettings.json web.config  # Thực hiện sao chép với chế độ đồng bộ, bỏ qua appsettings.json và web.config
-
-    - name: Start IIS Application
-      run: |
-        Start-WebAppPool -Name ${{ env.websiteName }}  # Khởi động lại Application Pool
