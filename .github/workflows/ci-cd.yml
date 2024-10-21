@@ -46,6 +46,7 @@ jobs:
         Import-Module WebAdministration
 
         $websiteName = "ImplementCICDWithGithub"  # Đặt tên website của bạn ở đây
+        $appPoolName = "ImplementCICDWithGithub"  # Đặt tên application pool của bạn ở đây
         $appPath = "C:\Ryan\publish\ImplementCICDWithGithub"  # Đường dẫn đến ứng dụng đã xuất bản
 
         # Kiểm tra nếu ứng dụng đã tồn tại
@@ -54,12 +55,18 @@ jobs:
           exit 1
         }
 
-        # Cập nhật đường dẫn ứng dụng
+        # Kiểm tra và tạo Application Pool nếu không tồn tại
+        if (-Not (Get-WebAppPoolState -Name $appPoolName -ErrorAction SilentlyContinue)) {
+          New-WebAppPool -Name $appPoolName
+          Write-Host "Created App Pool: $appPoolName"
+        }
+
+        # Kiểm tra website
         if (-Not (Get-Website -Name $websiteName -ErrorAction SilentlyContinue)) {
-          New-Website -Name $websiteName -Port 8080 -PhysicalPath $appPath
+          New-Website -Name $websiteName -Port 8080 -PhysicalPath $appPath -ApplicationPool $appPoolName
         } else {
           Set-Item "IIS:\Sites\$websiteName" -Value $appPath
         }
 
-        # Khởi động lại ứng dụng
-        Restart-WebAppPool -Name $websiteName
+        # Khởi động lại application pool
+        Start-WebAppPool -Name $appPoolName
