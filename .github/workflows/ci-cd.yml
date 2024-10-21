@@ -65,7 +65,10 @@ jobs:
         if ($result -ge 8) {
           Write-Host "Robocopy failed with exit code: $result"
           exit 1
+        } elseif ($result -eq 1 -or $result -eq 2 -or $result -eq 3) {
+          Write-Host "Robocopy completed with warnings. Exit code: $result"
         }
+
 
 
     - name: Check and Create App Pool
