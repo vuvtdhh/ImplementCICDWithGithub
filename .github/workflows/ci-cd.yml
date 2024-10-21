@@ -16,11 +16,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4  # Lấy mã nguồn từ repository
 
-    # - name: Setup .NET Core
-    #   uses: actions/setup-dotnet@v4
-    #   with:
-    #     dotnet-version: '8.0.x'  # Thiết lập phiên bản .NET Core
-
     - name: Restore dependencies
       run: dotnet restore  # Khôi phục các dependencies
 
@@ -36,24 +31,35 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4  # Lấy mã nguồn từ repository
 
-    # - name: Setup .NET Core
-    #   uses: actions/setup-dotnet@v4
-    #   with:
-    #     dotnet-version: '8.0.x'  # Thiết lập phiên bản .NET Core
-
     - name: Publish
       run: dotnet publish -c Release -o out  # Xuất bản ứng dụng
 
-    - name: Check IIS Express path
+    - name: Check IIS Installation
       run: |
-        $iisExpressPath = "C:\Program Files (x86)\IIS Express\iisexpress.exe"
-        if (-Not (Test-Path $iisExpressPath)) {
-          Write-Host "IIS Express not found at $iisExpressPath"
+        if (-Not (Get-Command iisreset -ErrorAction SilentlyContinue)) {
+          Write-Host "IIS not found. Make sure it's installed."
           exit 1
         }
 
-    - name: Deploy to IIS Express
+    - name: Deploy to IIS
       run: |
-        # Chạy PowerShell để deploy ứng dụng tới IIS Express
-        $iisExpressPath = "C:\Program Files (x86)\IIS Express\iisexpress.exe"
-        & $iisExpressPath "/path:$(System.DefaultWorkingDirectory)\out" "/port:8080"  # Khởi động IIS Express với ứng dụng đã xuất bản
+        Import-Module WebAdministration
+
+        $websiteName = "ImplementCICDWithGithub"  # Đặt tên website của bạn ở đây
+        $appPath = "C:\inetpub\wwwroot\YourAppFolder"  # Đường dẫn đến ứng dụng đã xuất bản
+
+        # Kiểm tra nếu ứng dụng đã tồn tại
+        if (-Not (Test-Path $appPath)) {
+          Write-Host "Application path not found: $appPath"
+          exit 1
+        }
+
+        # Cập nhật đường dẫn ứng dụng
+        if (-Not (Get-Website -Name $websiteName -ErrorAction SilentlyContinue)) {
+          New-Website -Name $websiteName -Port 8080 -PhysicalPath $appPath
+        } else {
+          Set-Item "IIS:\Sites\$websiteName" -Value $appPath
+        }
+
+        # Khởi động lại ứng dụng
+        Restart-WebAppPool -Name $websiteName
