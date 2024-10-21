@@ -55,11 +55,11 @@ jobs:
         }
 
     - name: Sync files to publish folder
+      shell: powershell
       run: |
-        $source = "$(System.DefaultWorkingDirectory)\out"
+        $source = "$env:GITHUB_WORKSPACE\out"  # Sử dụng GITHUB_WORKSPACE để lấy đường dẫn
         $destination = "C:\Ryan\publish\ImplementCICDWithGithub"
         robocopy $source $destination /MIR /R:3 /W:5 /XF appsettings.json web.config
-      shell: powershell
 
     - name: Check and Create App Pool
       shell: powershell
