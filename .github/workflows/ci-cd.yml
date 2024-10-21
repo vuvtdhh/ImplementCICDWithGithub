@@ -47,25 +47,24 @@ jobs:
       run: |
         $websiteName = "ImplementCICDWithGithub"
         $appPoolName = "ImplementCICDWithGithub"
-
+        
         # Kiểm tra và dừng Application Pool nếu đang chạy
         $appPoolState = Get-WebAppPoolState -Name $appPoolName -ErrorAction SilentlyContinue
         if ($appPoolState -and $appPoolState.Value -eq "Started") {
-          Stop-WebAppPool -Name $appPoolName
-          Write-Host "Stopped Application Pool: $appPoolName"
+            Stop-WebAppPool -Name $appPoolName
+            Write-Host "Stopped Application Pool: $appPoolName"
         } else {
-          Write-Host "Application Pool is already stopped: $appPoolName"
+            Write-Host "Application Pool is already stopped: $appPoolName"
         }
-
-        # Dừng Application Pool nếu đang chạy
-        $appPoolState = Get-WebAppPoolState -Name $appPoolName -ErrorAction SilentlyContinue
-        if ($appPoolState -and $appPoolState.Value -eq "Started") {
-          Stop-WebAppPool -Name $appPoolName
-          Write-Host "Stopped Application Pool: $appPoolName"
+        
+        # Kiểm tra và dừng Website nếu đang chạy
+        $websiteState = Get-Website -Name $websiteName -ErrorAction SilentlyContinue
+        if ($websiteState -and $websiteState.State -eq "Started") {
+            Stop-WebItem "IIS:\Sites\$websiteName"
+            Write-Host "Stopped Website: $websiteName"
         } else {
-          Write-Host "Application Pool is already stopped: $appPoolName"
+            Write-Host "Website is already stopped: $websiteName"
         }
-
 
     - name: Sync files to publish folder
       shell: powershell
