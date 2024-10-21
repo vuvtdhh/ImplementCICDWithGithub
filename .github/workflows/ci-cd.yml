@@ -47,7 +47,7 @@ jobs:
 
         $websiteName = "ImplementCICDWithGithub"  # Đặt tên website của bạn ở đây
         $appPoolName = "ImplementCICDWithGithub"  # Đặt tên application pool của bạn ở đây
-        $appPath = "C:\Ryan\publish\ImplementCICDWithGithub"  # Đường dẫn đến ứng dụng đã xuất bản
+        $appPath = "C:\Ryan\actions-runner\_work\ImplementCICDWithGithub\ImplementCICDWithGithub\out"  # Đường dẫn đến ứng dụng đã xuất bản
 
         # Kiểm tra nếu ứng dụng đã tồn tại
         if (-Not (Test-Path $appPath)) {
