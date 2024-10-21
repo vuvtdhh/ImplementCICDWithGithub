@@ -59,17 +59,7 @@ jobs:
       run: |
         $source = "$env:GITHUB_WORKSPACE\out"
         $destination = "C:\Ryan\publish\ImplementCICDWithGithub"
-        $result = robocopy $source $destination /MIR /R:3 /W:5 /XF appsettings.json web.config
-
-        # Kiểm tra mã thoát của robocopy
-        if ($result -ge 8) {
-          Write-Host "Robocopy failed with exit code: $result"
-          exit 1
-        } elseif ($result -eq 1 -or $result -eq 2 -or $result -eq 3) {
-          Write-Host "Robocopy completed with warnings. Exit code: $result"
-        }
-
-
+        robocopy $source $destination /MIR /R:3 /W:5 /XF appsettings.json web.config
 
     - name: Check and Create App Pool
       shell: powershell
