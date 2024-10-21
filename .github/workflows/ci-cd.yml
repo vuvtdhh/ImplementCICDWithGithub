@@ -57,9 +57,16 @@ jobs:
     - name: Sync files to publish folder
       shell: powershell
       run: |
-        $source = "$env:GITHUB_WORKSPACE\out"  # Sử dụng GITHUB_WORKSPACE để lấy đường dẫn
+        $source = "$env:GITHUB_WORKSPACE\out"
         $destination = "C:\Ryan\publish\ImplementCICDWithGithub"
-        robocopy $source $destination /MIR /R:3 /W:5 /XF appsettings.json web.config
+        $result = robocopy $source $destination /MIR /R:3 /W:5 /XF appsettings.json web.config
+
+        # Kiểm tra mã thoát của robocopy
+        if ($result -ge 8) {
+          Write-Host "Robocopy failed with exit code: $result"
+          exit 1
+        }
+
 
     - name: Check and Create App Pool
       shell: powershell
