@@ -29,3 +29,22 @@ jobs:
 
     - name: Test
       run: dotnet test --no-restore --verbosity normal
+  deploy:
+    runs-on: self-hosted
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Publish
+      run: dotnet publish -c Release -o out
+
+    - name: Deploy to IIS Express
+      run: |
+        # Chạy PowerShell để deploy ứng dụng tới IIS Express
+        $iisExpressPath = "C:\Program Files (x86)\IIS Express\iisexpress.exe"
+        Start-Process -FilePath $iisExpressPath -ArgumentList "/path:$(System.DefaultWorkingDirectory)\out, /port:8080"
