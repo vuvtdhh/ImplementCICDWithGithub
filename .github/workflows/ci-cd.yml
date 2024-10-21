@@ -53,6 +53,9 @@ jobs:
         if ($appPoolState -and $appPoolState.Value -eq "Started") {
             Stop-WebAppPool -Name $appPoolName
             Write-Host "Stopped Application Pool: $appPoolName"
+
+            # Đợi một chút để đảm bảo Application Pool đã dừng
+            Start-Sleep -Seconds 5
         } else {
             Write-Host "Application Pool is already stopped: $appPoolName"
         }
@@ -62,6 +65,9 @@ jobs:
         if ($websiteState -and $websiteState.State -eq "Started") {
             Stop-WebItem "IIS:\Sites\$websiteName"
             Write-Host "Stopped Website: $websiteName"
+
+            # Đợi một chút để đảm bảo Website đã dừng
+            Start-Sleep -Seconds 5
         } else {
             Write-Host "Website is already stopped: $websiteName"
         }
