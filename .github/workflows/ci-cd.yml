@@ -84,6 +84,9 @@ jobs:
     - name: Restart IIS Application
       shell: powershell
       run: |
+        $appPoolName = "ImplementCICDWithGithub"
+        $websiteName = "ImplementCICDWithGithub"
+        
         # Kiểm tra trạng thái của App Pool
         $appPoolState = Get-WebAppPoolState -Name $appPoolName -ErrorAction SilentlyContinue
         if ($appPoolState -and $appPoolState.Value -eq "Stopped") {
