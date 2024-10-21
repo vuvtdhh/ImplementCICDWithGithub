@@ -46,7 +46,7 @@ jobs:
         Import-Module WebAdministration
 
         $websiteName = "ImplementCICDWithGithub"  # Đặt tên website của bạn ở đây
-        $appPath = "C:\inetpub\wwwroot\YourAppFolder"  # Đường dẫn đến ứng dụng đã xuất bản
+        $appPath = "C:\Ryan\publish\ImplementCICDWithGithub"  # Đường dẫn đến ứng dụng đã xuất bản
 
         # Kiểm tra nếu ứng dụng đã tồn tại
         if (-Not (Test-Path $appPath)) {
