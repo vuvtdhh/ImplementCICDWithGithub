@@ -84,10 +84,24 @@ jobs:
     - name: Restart IIS Application
       shell: powershell
       run: |
-        $appPoolName = "ImplementCICDWithGithub"
-        $websiteName = "ImplementCICDWithGithub"
-        
-        # Restart App Pool và Website
-        Restart-WebAppPool -Name $appPoolName
-        Restart-WebItem "IIS:\Sites\$websiteName"
-        Write-Host "Restarted App Pool and Website: $websiteName"
+        # Kiểm tra trạng thái của App Pool
+        $appPoolState = Get-WebAppPoolState -Name $appPoolName -ErrorAction SilentlyContinue
+        if ($appPoolState -and $appPoolState.Value -eq "Stopped") {
+            Start-WebAppPool -Name $appPoolName
+            Write-Host "Started Application Pool: $appPoolName"
+        } elseif (-Not $appPoolState) {
+            Write-Host "Application Pool does not exist: $appPoolName"
+        } else {
+            Write-Host "Application Pool is already running: $appPoolName"
+        }
+    
+        # Kiểm tra trạng thái của website
+        $websiteState = Get-Website -Name $websiteName -ErrorAction SilentlyContinue
+        if ($websiteState -and $websiteState.State -eq "Stopped") {
+            Start-WebItem "IIS:\Sites\$websiteName"
+            Write-Host "Started Website: $websiteName"
+        } elseif (-Not $websiteState) {
+            Write-Host "Website does not exist: $websiteName"
+        } else {
+            Write-Host "Website is already running: $websiteName"
+        }
