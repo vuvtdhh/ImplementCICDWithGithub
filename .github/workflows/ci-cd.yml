@@ -34,6 +34,7 @@ jobs:
 
   deploy:
     runs-on: self-hosted
+    needs: build  # Đảm bảo deploy chỉ chạy sau khi build hoàn thành
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
